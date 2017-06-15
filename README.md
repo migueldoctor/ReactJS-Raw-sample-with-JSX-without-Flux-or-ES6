@@ -19,3 +19,15 @@ So let's import it
 ``` 
 
 ### 2. Using JSX instead of React.createElement() JSX function
+As described on the previous [tutorial](https://github.com/migueldoctor/ReactJS-Raw-sample-no-JSX-or-Flux-or-ES6) about react without JSX, you need to use the function React.createElement() in order to create HTML or react components. When working with JSX you don't need to use that function, so you only have to assign the JSX code to a var as shown below:
+
+```javascript 
+//Without JSX
+//var rootElement = React.createElement('div',{},
+//React.createElement('h1',{},"Contacts"));
+
+//With JSX
+var rootElement = <div><h1>Contacts</h1></div> ;
+```
+
+  
