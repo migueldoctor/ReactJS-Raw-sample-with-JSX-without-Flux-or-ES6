@@ -30,4 +30,39 @@ As described on the previous [tutorial](https://github.com/migueldoctor/ReactJS-
 var rootElement = <div><h1>Contacts</h1></div> ;
 ```
 
-  
+In commit [6](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/d4fd30e759de97088eb5d5878122a7cfd05457a0) we can see how to create a more complex rootElement including several HTML tags. In the comments we can see how using JSX makes our code more readable than nesting js createElement callings.
+
+
+```javascript 
+      // rootElement creation without JSX
+      /*
+      var rootElement = React.createElement('div',{},
+         React.createElement('h1',{},"Contacts"),
+         React.createElement('ul',{},
+           React.createElement('li', {},
+               React.createElement('h2', {}, "James Nelson"),
+               React.createElement('a', {href: 'mailto:james@jamesknelson.com'}, 'james@jamesknelson.com')
+             ),
+             React.createElement('li', {},
+               React.createElement('h2', {}, "Joe Citizen"),
+               React.createElement('a', {href: 'mailto:joe@example.com'}, 'joe@example.com')
+             )
+           )
+         );
+        );
+      */
+
+      // rootElement creation with JSX
+      var rootElement = <div>
+                              <h1>Contacts</h1>
+                              <ul>
+                                <li><h2>James Nelson</h2>
+                                    <a href='mailto:migueldoctor@gmail.com'>migueldoctor@gmail.com</a>
+                                </li>
+                                <li><h2>Joe Citizen</h2>
+                                    <a href='mailto:joe@example.com'>joe@example.com</a>
+                                </li>
+                              </ul>
+                        </div> 
+
+```
