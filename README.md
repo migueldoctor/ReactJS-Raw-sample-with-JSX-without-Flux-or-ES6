@@ -156,7 +156,7 @@ KEEP IN MIND THAT THIS DOESN'T WORK FOR SOME BROWSERS LIKE CHROME, because it on
 
 In this tutorial we have decided to update the launch.json in commit [12](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/10ad54a4b88f87bcdf993fe9a2a287a84d9fe196) in order to use FF instead of Chrome so we don't deviate from the main goal of the tutorial.
 
-```javascript 
+```javascript
   <body>
      <div id="react-app">
     </div>
@@ -167,4 +167,40 @@ In this tutorial we have decided to update the launch.json in commit [12](https:
     
     <script type="text/babel" src="./main.jsx"/>
   </body>
+```
+
+### 5.  Using React.createClass() to create your own components
+So far we are using react just to create HTML components by making use of Javascript. But the real power of React comes with the posibility of create your own components so you can use it as regular HTML components on your reactjs source files. Reactjs defines new components by invoking the method React.createClass(). When using this method you have to define the following properties:
+
+1. propTypes: (This is optional but recommendable for testing purposes) Here you can define the attributes of your new component (just like the href attribute of the a HTML component)
+2. render: This is mandatory and it is a function returing the JSX code that needs to be rendered when this component is used on a reactjs program.
+
+Let's see an example of using React.createClass method:
+
+```javascript
+// Custom components must start with upper letter
+var SampleItem = React.createClass({
+        propTypes: {
+                //This attributes will be available from render function under this.props.name and this.props.email
+                name: React.PropTypes.string.isRequired,
+                email: React.PropTypes.string, //This one is not mandatory
+        },
+        render: function() {
+                return (
+                        <li>
+                          <h2>{this.props.name}</h2>
+                          <a href={'mailto:'+this.props.email}>{this.props.email}</a>
+                        </li>
+                    )
+        }
+});
+```
+
+Once created you can use it with React.createElement() or in this case as any other JSX element as you would do with any other standard HTML component.
+
+```javascript
+var rootElement = <SampleItem name='Miguel Doctor' email='fakeemail@mail.com' />
+
+//var rootElement = React.createElement(SampleItem, {name:'Miguel Doctor'});
+ReactDOM.render(rootElement, document.getElementById('react-app'))
 ```
