@@ -2,8 +2,9 @@
      "version": "0.2.0",
      "configurations": [{
              "name": "Launch index.html (disable sourcemaps)",
-             "type": "chrome",
+             "type": "firefox",
              "request": "launch",
+             "reAttach": true,
              "sourceMaps": false,
              "file": "${workspaceRoot}/index.html"
      }]
