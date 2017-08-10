@@ -67,6 +67,8 @@ In commit [6](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-withou
 
 ```
 
+### 3.  Using js functions and vars within JSX code 
+
 In commit [8](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/f11290e2d69cb04649c131546fc6c183e7e57dca) we have replaced the fixed rootElement created 
 with JSX and we have composited it making use of an array of contacts, then we have applied filter and map functions and include the var result in the JSX CODE USING BRACKETS {}. As follows we 
 can see the evolution of our example
@@ -136,4 +138,33 @@ can see the evolution of our example
 
 
       ReactDOM.render(rootElement, document.getElementById('react-app'));
+```
+### 4.  Moving js code from the html file to an external jsx file (main.jsx)
+
+In commit [11](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/9d24b20e1d80e3fcf263f13206e503b4f2007a4f) we have refactored the source code in order to separate the JSX code and the html code. In consequence we have created a new file called main.jsx and place on it all js and jsx code we previously had within a script tag in the index.html file.
+
+Once removed the js code from the html file, we have to reference it AFTER the div block where the react code will be rendered
+
+KEEP IN MIND THAT THIS DOESN'T WORK FOR SOME BROWSERS LIKE CHROME, because it only renders jsx code served by a server 
+         So you can use Firefox or Safari and if you want to install a light weight server A good one is http-server which can be installed from npm with the following command:
+
+            npm install -g http-server
+        And started from your project’s root directory like so:
+
+            http-server
+        Your page will now be viewable at http://127.0.0.1:8080/.
+
+In this tutorial we have decided to update the launch.json in commit [12](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/10ad54a4b88f87bcdf993fe9a2a287a84d9fe196) in order to use FF instead of Chrome so we don't deviate from the main goal of the tutorial.
+
+```javascript 
+  <body>
+     <div id="react-app">
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/react/15.5.4/react.js"></script>
+    <script src="https://cdn.jsdelivr.net/react/15.5.4/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    
+    <script type="text/babel" src="./main.jsx"/>
+  </body>
 ```
