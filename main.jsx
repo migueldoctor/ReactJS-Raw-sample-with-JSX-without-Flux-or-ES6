@@ -31,26 +31,44 @@
        */
 
       // Since React and JSX are js compatible we can use it in loops, if statements or any other feature provided by javascript
-      //4.1) Let us create an array JSON objects wth users and optional emails
+      //4.1) Let us create an array JSON objects wth users and optional emails.
+      //Now we add as well description fields to some of the contacts elements
       var contacts = [
-        {key: 1, name:'Miguel Doctor', email:'migueldoctor@gmail.com'},
-        {key: 2, name:'Bob'},
+        {key: 1, name:'Miguel Doctor', email:'migueldoctor@gmail.com', description:'Miguel is the one making this example, so for that reason it will have a description field'},
+        {key: 2, name:'Bob', description:'Bob is a great user but without email, so for that reason we provide him with a description'},
         {key: 3, name:'Joe Citizen',email:'mailto:joe@example.co'}
       ];
       
+      //5a) Here we create our first component with react and JSX
+      var ContactItem = React.createClass({
+        propTypes:{ //The passed argument must be a js object with name,email and description. This section is optional and can be infered by React by the JSX code in the render function
+          //This way to define the proptypes is deprecated but we leave it in this way for learning porpuses
+          name:React.PropTypes.string.isRequired, //Pay attention because PropTypes here starts with capitals but in the line up it starts in lower case. 
+          email:React.PropTypes.string,
+          description:React.PropTypes.string
+        },
+        render: function () {
+          return <li key={this.props.key}>
+                    <h2>{this.props.name}</h2>
+                    <a href={'mailto:'+this.props.email}>{this.props.email}</a>
+                    <div>{this.props.description}</div>
+                    </li>
+        }
+      });
+
+
       //4.2) Now let's filter the array by choosing the ones with email
       var getEmailFromContact = function (contact) { return contact.email; }
       
       //4.3) filter function applies a condition and return the elements of the array that returns not null
-      //map function applies the passed function to all elements of the array. In this case we return the JSX code
-    
+      //map function applies the passed function to all elements of the array. 
+
+      //5b)In this case we return the ContactItem reactComponent we have just created
       var listElements = contacts.filter(getEmailFromContact)
                                  .map(function (contact) {
-                                     return <li key={contact.key}>
-                                                <h2>{contact.name}</h2>
-                                                <a href={'mailto:'+contact.email}>{contact.email}</a>
-                                            </li>
+                                     return <ContactItem name={contact.name} email={contact.email} description={contact.description}/>
                                  })
+
     //4.4) then we create the fixed part as rootElement making use of the listElements var
     var rootElement = <div>
                         <h1>Contacts</h1>
@@ -59,5 +77,4 @@
                         </ul>
                       </div>
 
-
-      ReactDOM.render(rootElement, document.getElementById('react-app'));
+    ReactDOM.render(rootElement, document.getElementById('react-app'));
