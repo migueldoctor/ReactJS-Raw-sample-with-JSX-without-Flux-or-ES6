@@ -254,4 +254,38 @@ var listElements = contacts.filter(getEmailFromContact)
                                  .map(function (contact) {
                                      return <ContactItem name={contact.name} email={contact.email} description={contact.description}/>
                                  })
-```  
+```
+
+### 7.  Rendering changes in React with ReactDOM.render()
+
+React doesn't include any kind of automatically-updating views mechanism, so the developer must to indicate react when to make a re-render of the displayed data. In short, React makes use of a shadow DOM tree, and changes are done on that shadow DOM tree. So when we recall a ReactDOM.render(), React compares the displayed real DOM tree with the shadow one, and it updates ONLY the elements that have been updated. That is why react is so efficient.
+
+In order to decide what to change, React uses a number of rules to decide what to do:
+
+ReactElements with differing types are trashed and re-rendered
+ReactElements with differing props or children are re-rendered in place
+Identical ReactElements which have been re-ordered within an array are moved to reflect the new order
+When React encounters an array of ReactElements with identical type and props, despite looking identical from the outside it cannot know that they are really identical. This is because elements can have internal state – for example, whether the element currently has user focus. This becomes a problem when React goes to re-render those elements, as it cannot tell one from another – and thus doesn’t know if their order within the array has changed.
+
+This is where the key property from the earlier examples comes in. It lets React distinguish between elements, and keep the DOM aligned with our ReactElement tree.
+
+```javascript
+var ContactItem = React.createClass({
+    propTypes: { // The passed argument must be an object with name, email and description fields being name mandatory
+        name: React.PropTypes.string.isRequired,
+        email: React.PropTypes.string,
+        description: React.PropTypes.string,
+    },
+
+    render: function() {
+        return (
+            <li key={this.props.key}>  <-- this is the added key property
+              <h2>{this.props.name}</h2>
+              <a href={'mailto:'+this.props.email}>{this.props.email}</a>
+              <div>{this.props.description}</div>
+            </li>
+            )
+        );
+    }
+});
+```
