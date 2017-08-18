@@ -38,6 +38,9 @@
         {key: 2, name:'Bob', description:'Bob is a great user but without email, so for that reason we provide him with a description'},
         {key: 3, name:'Joe Citizen',email:'mailto:joe@example.co'}
       ];
+
+       // Then we create a new empty contact object
+       var newContact = {name: "", email: "", description: ""}
       
       //5a) Here we create our first component with react and JSX
       var ContactItem = React.createClass({
@@ -56,6 +59,23 @@
         }
       });
 
+      // React Component ContactForm
+      var ContactForm = React.createClass({
+        propTypes: {
+          contact: React.PropTypes.object.isRequired
+        },
+
+        render: function(){
+            return ( 
+              <form className='ContactForm'>
+                <input type='text' placeholder='Name (required)' value={this.props.contact.name}/>
+                <input type='text' placeholder='Email (optional)' value={this.props.contact.email}/>
+                <input type='textarea' placeholder='Description (optional)' value={this.props.contact.description}/>
+                <button type='submit'>Add Contact</button>
+              </form>
+            )
+        }
+      });
 
       //4.2) Now let's filter the array by choosing the ones with email
       var getEmailFromContact = function (contact) { return contact.email; }
@@ -69,12 +89,13 @@
                                      return <ContactItem name={contact.name} email={contact.email} description={contact.description}/>
                                  })
 
-    //4.4) then we create the fixed part as rootElement making use of the listElements var
+    // Finally we add the ContactForm component to our rootElement component
     var rootElement = <div>
                         <h1>Contacts</h1>
                         <ul>
                         {listElements}
                         </ul>
+                        <ContactForm contact={newContact}/>
                       </div>
 
     ReactDOM.render(rootElement, document.getElementById('react-app'));
