@@ -289,3 +289,54 @@ var ContactItem = React.createClass({
     }
 });
 ```
+
+### 8.  Forms in React
+In React, input elements are not complicated at all. The _value_ is taken as a prop, and this is what will be displayed. It's very important to mention that since *the component can’t directly change the props* (as the values passed in from the outside world) user input won’t cause any change in the displayed value. Therefore you will need to set up events handlers in order to process the user inputs and modify your UI accordingly.
+
+In addition to value, input elements take the props you’d expect them to. With a few minor exceptions, the attributes you can pass to a HTML \<input> are also available as props. There are two exceptions worth keeping in mind:
+
+   1. React textarea elements take their content as a value prop, not as children
+   2. The HTML for attribute is bound to the __*htmlFor*__ prop (as for is a reserved word in JavaScript)
+
+In commit [18](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/21586318d59435b1c061675a02b1ba1a49d78c70) we have implemented the form to add contacts to our react app following the 3 steps indicated below:
+  
+   1. Creation of the component ContactForm by using React.createClass()
+   
+   ```javascript
+        // 1) Here we create the ContactForm react component which will receive a contact object as passed prop argument
+      // React Component ContactForm
+      var ContactForm = React.createClass({
+        propTypes: {
+          contact: React.PropTypes.object.isRequired
+        },
+
+        render: function(){
+            return ( 
+              <form className='ContactForm'>
+                <input type='text' placeholder='Name (required)' value={this.props.contact.name}/>
+                <input type='text' placeholder='Email (optional)' value={this.props.contact.email}/>
+                <input type='textarea' placeholder='Description (optional)' value={this.props.contact.description}/>
+                <button type='submit'>Add Contact</button>
+              </form>
+            )
+        }
+      });
+   ```
+   
+   2. Initialize a var containing an empty contact object
+   ```javascript
+        //2) Then we create a new empty contact object
+        var newContact = {name: "", email: "", description: ""}
+   ```
+   3. Added the component ContactForm to our rootElement
+  
+  ```javascript
+    //3) Finally we add the ContactForm component to our rootElement component   
+    var rootElement = <div>
+                        <h1>Contacts</h1>
+                        <ul>
+                        {listElements}
+                        </ul>
+                        <ContactForm contact={newContact}/>
+                      </div>
+    ```
