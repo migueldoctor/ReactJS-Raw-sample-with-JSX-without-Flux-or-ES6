@@ -339,4 +339,159 @@ In commit [18](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-witho
                         </ul>
                         <ContactForm contact={newContact}/>
                       </div>
-    ```
+  ```
+### 9.  Styling React apps by using className React attribute
+
+In React, we can assign class attributes to the components by using the property className (Note that like the DOM, React uses the className property to assign CSS classes (as class is a reserved word in JavaScript). There are several methods to assign css styles to our components, but for simplicity on this example we are going to pass them directly to the render function of the component.
+
+1. So let's start by creating a style.css file including the definition of the used css classes (ContactItem, ContactItem-name, ContactItem-email and ContactItem-description). This file needs to be referenced in the head of your index.html file as indicated below.
+
+ ```html
+         <link rel="stylesheet" href="style.css">
+ 
+ ```
+
+The content of the css file is described as follows:
+
+```css
+      body {
+      font-family: Tahoma, sans-serif;
+      margin: 0;
+      }
+
+      /* ContactView component CSS rules */
+      .ContactView-title {
+        font-size: 24px;
+        padding: 0 24px;
+      }
+
+      .ContactView-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      /*ContactItem component CSS rules */
+      .ContactItem {
+        margin: 0;
+        padding: 8px 24px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .ContactItem-name {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0;
+      }
+      .ContactItem-email {
+        font-size: 14px;
+        margin-top: 4px;
+        font-style: italic;
+        color: #888;
+      }
+      .ContactItem-description {
+        font-size: 14px;
+        margin-top: 4px;
+      }
+
+      /*ContactForm component CSS rules */
+      .ContactForm {
+        padding: 8px 24px;
+      }
+      .ContactForm > input,
+      .ContactForm > textarea {
+        display: block;
+        width: 240px;
+        padding: 4px 8px;
+        margin-bottom: 8px;
+        border-radius: 3px;
+        border: 1px solid #888;
+        font-size: 14px;
+      }   
+  ```
+2. Once the css file is created and properly referenced we have to assign the css classes to the render functions of the components by using *className* attribute. Let's start by ContactItem:
+
+  ```javascript
+ var ContactItem = React.createClass({
+        propTypes:{ //The passed argument must be a js object with name,email and description. This section is optional and can be infered by React by the JSX code in the render function
+          //This way to define the proptypes is deprecated but we leave it in this way for learning porpuses
+          name:React.PropTypes.string.isRequired, //Pay attention because PropTypes here starts with capitals but in the line up it starts in lower case. 
+          email:React.PropTypes.string,
+          description:React.PropTypes.string
+        },
+        render: function () {
+          // Wrong! There is no need to specify the key here: <li key={this.props.key}> because it only makes sense if you want to return an array variable so
+          // it should be placed in the return contained in the map function. See https://fb.me/react-warning-keys for more information
+          //return <li key={this.props.key}>
+          return  <li className='ContactItem'> 
+                    <h2 className='ContactItem-name'>{this.props.name}</h2>
+                    <a className='ContactItem-email' href={'mailto:'+this.props.email}>{this.props.email}</a>
+                    <div className='ContactItem-description'>{this.props.description}</div>
+                  </li>
+        }
+      });
+  ```
+
+  3. Let's continuewith the component ContactForm:
+
+```javascript
+  // React Component ContactForm
+      var ContactForm = React.createClass({
+        propTypes: {
+          contact: React.PropTypes.object.isRequired
+        },
+        render: function(){
+            return ( 
+              <form className='ContactForm'>
+                <input type='text' className='ContactItem-name' placeholder='Name (required)' value={this.props.contact.name}/>
+                <input type='text' className='ContactItem-email' placeholder='Email (optional)' value={this.props.contact.email}/>
+                <input type='textarea' className='ContactItem-description' placeholder='Description (optional)' value={this.props.contact.description}/>
+                <button type='submit'>Add Contact</button>
+              </form>
+            )
+        }
+      });
+```
+
+  4. Next, in order to keep more reusible our react script we are going to create a ContactView component that receives the list of contacts as well as the new contact used to store the input data. It will make use of the *ContactForm* and *ContactItem* components. As follows the code and the CSS associated views. IMPORTANT, pay attention to the key attribute here when creating the var *contactItemElements*
+
+```javascript
+    var ContactView = React.createClass({
+            propTypes: {
+                    contacts: React.PropTypes.array.isRequired,
+                    newContact: React.PropTypes.object.isRequired,
+            },
+
+            render: function() {
+                    var getEmailFromContact = function(contact) { return contact.email };
+                    var contactItemElements = contacts.filter(getEmailFromContact)
+                                                      .map(function(contact) { // Correct! Key should be specified inside the array.See https://fb.me/react-warning-keys for more information.
+                                                                            return <ContactItem
+                                                                                        key={contact.key}
+                                                                                        name={contact.name} 
+                                                                                        email={contact.email} 
+                                                                                        description={contact.description}/>
+                                                                    }
+                                                            );
+
+                    return (
+                            <div className='ContactView'>
+                              <h1 className='ContactView-title'>Contacts</h1>
+                              <ul className='ContactView-list'>{contactItemElements}</ul>
+                              <ContactForm contact={this.props.newContact} />
+                            </div>
+                            )
+            }
+          });
+```
+
+
+4. Finally we render the ContactView component as root component of the react application. 
+
+```javascript
+        /*
+        * Entry point
+        */
+
+        ReactDOM.render(<ContactView contacts={contacts} newContact={newContact} />, document.getElementById('react-app'));
+```
