@@ -495,3 +495,5 @@ The content of the css file is described as follows:
 
         ReactDOM.render(<ContactView contacts={contacts} newContact={newContact} />, document.getElementById('react-app'));
 ```
+
+In commit [20] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/881ad0c1366ddbaca2c4e61b55ffe038c48eb3ad) you can see the result of these changes and a reestructured version of the script
