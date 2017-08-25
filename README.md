@@ -579,3 +579,4 @@ by the following nicer one:
                                                                                                         description={contact.description}/>
                                                                                                });
 ```
+      this.state = {
