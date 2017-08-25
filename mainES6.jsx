@@ -1,12 +1,6 @@
 /******************************************* 
  * DATA SECTION
  ******************************************/
-      var contacts = [
-        {key: 1, name:'Miguel Doctor', email:'migueldoctor@gmail.com', description:'Miguel is the one making this example, so for that reason it will have a description field'},
-        {key: 2, name:'Bob', description:'Bob is a great user but without email, so for that reason we provide him with a description'},
-        {key: 3, name:'Joe Citizen',email:'joe@example.co'}
-      ];
-
       // Then we create a new empty contact object
       var newContact = {name: "", email: "", description: ""}
 
@@ -88,24 +82,32 @@
  ** ContactView component
  ***************************/
   class ContactView extends React.Component {
+    /**
+     * Constructor method allows to define the state of the component.
+     * @memberof ContactView
+     */
+    constructor() { // Components in react apart from properties, they have a state. A state is an immutable object, that triggers the render method every time this is modified. 
+      super();      //We then include the external variable contacts as state variable for the ContactView component, which is the top level compoennt      
+      this.state = {
+                contacts : [
+                    {key: 1, name:'Miguel Doctor', email:'migueldoctor@gmail.com', description:'Miguel is the one making this example, so for that reason it will have a description field'},
+                    {key: 2, name:'Bob', description:'Bob is a great user but without email, so for that reason we provide him with a description'},
+                    {key: 3, name:'Joe Citizen',email:'joe@example.co'}
+                ]
+      };
+    }
+
     render() {
                 var getEmailFromContact = function(contact) { return contact.email };
-                var contactItemElements = contacts.filter(getEmailFromContact).map(contact => { // Here we make use of the arrow function from ES6 
+                // Here we replace the var contacts by the state var contacts.
+                // IMPORTANT. In this way, everytime the array contacts is updated, since it's part of the state, the render method will be executed again, without reloading
+                var contactItemElements = this.state.contacts.filter(getEmailFromContact).map(contact => { // Here we make use of the arrow function from ES6 
                                                                                               return <ContactItem
                                                                                                         key={contact.key}
                                                                                                         name={contact.name} 
                                                                                                         email={contact.email} 
                                                                                                         description={contact.description}/>
                                                                                                });
-                                                                        /*.map(function(contact) { // Correct! Key should be specified inside the array.See https://fb.me/react-warning-keys for more information.
-                                                                        return <ContactItem
-                                                                                     key={contact.key}
-                                                                                     name={contact.name} 
-                                                                                     email={contact.email} 
-                                                                                     description={contact.description}/>
-                                                                }
-                                                        );*/
-
                 return (
                         <div className='ContactView'>
                           <h1 className='ContactView-title'>Contacts</h1>
@@ -117,11 +119,12 @@
       };
   
   ContactView.propTypes = {
-    contacts: PropTypes.array.isRequired,
+    // Since included in the status this prop is not needed any more 
+    //contacts: PropTypes.array.isRequired,
     newContact: PropTypes.object.isRequired
   }
 
 /******************************************* 
  * ENTRY POINT SECTION 
  ******************************************/
-    ReactDOM.render(<ContactView contacts={contacts} newContact={newContact} />, document.getElementById('react-app'));
+    ReactDOM.render(<ContactView newContact={newContact} />, document.getElementById('react-app'));
