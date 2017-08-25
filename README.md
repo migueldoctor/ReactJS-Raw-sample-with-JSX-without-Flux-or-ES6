@@ -1,5 +1,5 @@
 # ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6
-Step by Step tutorial about how to use ReactJS with JSX and without any other react ecosystem tool like Webpack or ES6 or Redux... This tutorial aims to create the same example than this other [ReactJS-Raw-sample-no-JSX-or-Flux-or-ES6-](https://github.com/migueldoctor/ReactJS-Raw-sample-no-JSX-or-Flux-or-ES6-/) tutorial but using JSX instead of plain javascript react functions
+Step by Step tutorial about how to use ReactJS with JSX and without any other react ecosystem tool like npm or Webpack or Redux... This tutorial aims to create the same example than this other [ReactJS-Raw-sample-no-JSX-or-Flux-or-ES6-](https://github.com/migueldoctor/ReactJS-Raw-sample-no-JSX-or-Flux-or-ES6-/) tutorial but using JSX instead of plain javascript react functions. In addition it will include a version of the react java script code making use of the new standard ES6 of javascript. In the section 10 of the current README.md document, a file named mainES6.jsx is created and explained including the migrated version.
 
 ### 1. Setting up the environment
 
@@ -497,3 +497,85 @@ The content of the css file is described as follows:
 ```
 
 In commit [20] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/881ad0c1366ddbaca2c4e61b55ffe038c48eb3ad) you can see the result of these changes and a reestructured version of the script
+
+### 10.  Migrating to ES6 JS version
+
+If you run the app we have created you will luckly see some errors related to some deprecated packages and functions. At the same time the debug console suggest to upgrade your code to be ES6 JS compliant. In this section we are going to create a file called mainES6.jsx file including the same functionality than main.jsx but using JS ES6 instead of ES5. In commit [25] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/aaaea9a6d1bfe12943327a75235f04d891ce4025) you have the source code of mainES6.jsx. Remeber to update the html file with this js file as indicated in commit [24] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/793d887310014e69f0127dd3cfb74e9cb3b66c44)
+
+Here you have a component making use of the ES6 syntax
+
+```javascript
+
+/*************************** 
+ ** ContactItem component
+ ***************************/
+
+  class ContactItem extends React.Component { //INSTEAD OF React.createClass({ the ES6 version uses class and extends
+        /** React.PropTypes has moved into a different package since React v15.5. Please use the prop-types library instead. 
+         * So that it's why in this ES6 version is commented. In order to use it you must import the package as described here
+         * https://www.npmjs.com/package/prop-types or including within the html the following script tag
+         * <script src="https://unpkg.com/prop-types/prop-types.js"></script>
+         * And then define it after the creation of the class
+         * Remember to import it at the begining of the script:
+         * import PropTypes from 'prop-types'; // ES6 
+         * 
+        propTypes:{
+          name:React.PropTypes.string.isRequired, //Pay attention because PropTypes here starts with capitals but in the line up it starts in lower case. 
+          email:React.PropTypes.string,
+          description:React.PropTypes.string
+        },*/
+
+
+      render() { // The signature function: render() is not needed in ES6, use render() instead.
+          return  <li className='ContactItem'> 
+                    <h2 className='ContactItem-name'>{this.props.name}</h2>
+                    <a className='ContactItem-email' href={'mailto:'+this.props.email}>{this.props.email}</a>
+                    <div className='ContactItem-description'>{this.props.description}</div>
+                  </li>
+       }
+  };
+  // Proptypes definition are not included in the compoent in ES6! they are defined later as indicated
+
+    // PropTypes exports a range of validators that can be used to make sure the data you receive is valid. 
+    // In this example, we're using PropTypes.string 
+    // When an invalid value is provided for a prop, a warning will be shown in the JavaScript console. 
+    //For performance reasons, propTypes is only checked in development mode.
+  ContactItem.propTypes = {
+    name: PropTypes.string.isRequired, 
+    email:PropTypes.string,
+    description:PropTypes.string
+  };
+
+  // You can also define default Prop Values as indicated in the following sample
+  // Specifies the default values for props:
+  ContactItem.defaultProps = {
+    name: 'No name typed'
+  };
+
+```
+
+Another important new feature of ES6 is the arrow operator (=>) that allows you to replace the following code:
+```javascript
+  var contactItemElements = contacts.filter(getEmailFromContact)
+                                                  .map(function(contact) { // Correct! Key should be specified inside the array.See https://fb.me/react-warning-keys for more information.
+                                                                        return <ContactItem
+                                                                                     key={contact.key}
+                                                                                     name={contact.name} 
+                                                                                     email={contact.email} 
+                                                                                     description={contact.description}/>
+                                                                }
+                                                        );
+
+```
+
+by the following nicer one:
+
+```javascript
+ var contactItemElements = contacts.filter(getEmailFromContact).map(contact => { // Here we make use of the arrow function from ES6 
+                                                                                              return <ContactItem
+                                                                                                        key={contact.key}
+                                                                                                        name={contact.name} 
+                                                                                                        email={contact.email} 
+                                                                                                        description={contact.description}/>
+                                                                                               });
+```
