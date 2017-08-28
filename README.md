@@ -496,11 +496,11 @@ The content of the css file is described as follows:
         ReactDOM.render(<ContactView contacts={contacts} newContact={newContact} />, document.getElementById('react-app'));
 ```
 
-In commit [20] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/881ad0c1366ddbaca2c4e61b55ffe038c48eb3ad) you can see the result of these changes and a reestructured version of the script
+In commit [20](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/881ad0c1366ddbaca2c4e61b55ffe038c48eb3ad) you can see the result of these changes and a reestructured version of the script
 
 ### 10.  Migrating to ES6 JS version
 
-If you run the app we have created you will luckly see some errors related to some deprecated packages and functions. At the same time the debug console suggest to upgrade your code to be ES6 JS compliant. In this section we are going to create a file called mainES6.jsx file including the same functionality than main.jsx but using JS ES6 instead of ES5. In commit [25] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/aaaea9a6d1bfe12943327a75235f04d891ce4025) you have the source code of mainES6.jsx. Remeber to update the html file with this js file as indicated in commit [24] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/793d887310014e69f0127dd3cfb74e9cb3b66c44)
+If you run the app we have created you will luckly see some errors related to some deprecated packages and functions. At the same time the debug console suggest to upgrade your code to be ES6 JS compliant. In this section we are going to create a file called mainES6.jsx file including the same functionality than main.jsx but using JS ES6 instead of ES5. In commit [25](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/aaaea9a6d1bfe12943327a75235f04d891ce4025) you have the source code of mainES6.jsx. Remeber to update the html file with this js file as indicated in commit [24](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/793d887310014e69f0127dd3cfb74e9cb3b66c44)
 
 Here you have a component making use of the ES6 syntax
 
@@ -623,7 +623,7 @@ In consequence in our example we must perform the following changes in order to 
       ReactDOM.render(<ContactView newContact={newContact} />, document.getElementById('react-app'));
   ```
 
-In commit [27] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/1c9a90241ca0250fe45830b18e3c5c32303cd37d) we can see the full example source code
+In commit [27](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/1c9a90241ca0250fe45830b18e3c5c32303cd37d) we can see the full example source code
 
 ### 12.  Managing uncontrolled forms in react
 
@@ -749,4 +749,4 @@ As introduction to controlled components we can state that If you add a value={w
                         )
 ```
 
-On commit [29] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/ef5345046ba735688f5a512ed336db8830d08125) you can see the full code of the app
+On commit [29](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/ef5345046ba735688f5a512ed336db8830d08125) you can see the full code of the app
