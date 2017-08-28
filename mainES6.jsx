@@ -63,11 +63,15 @@
  ***************************/
   class ContactForm extends React.Component {
     render() {
+            // Events - 1) If we want to use the form in uncontrolled mode we have to remove the attribute value from the input JSX elements.
+            // Events - 2) Then we have to add the attribute onSubmit to the form and assign it to a method passed as prop from the father
+            //    component, which means that it's the father the one in charge of define this method and bind it to the child. In addition
+            //    the atribute name must be defined in order to retrieve the value from it
             return ( 
-              <form className='ContactForm'>
-                <input type='text' className='ContactItem-name' placeholder='Name (required)' value={this.props.contact.name}/>
-                <input type='text' className='ContactItem-email' placeholder='Email (optional)' value={this.props.contact.email}/>
-                <input type='textarea' className='ContactItem-description' placeholder='Description (optional)' value={this.props.contact.description}/>
+              <form className='ContactForm' onSubmit={this.props.onAddContact}>
+                <input type='text' className='ContactItem-name' placeholder='Name (required)' name='name'/>
+                <input type='text' className='ContactItem-email' placeholder='Email (optional)' name='email'/>
+                <textarea className='ContactItem-description' placeholder='Description (optional)' name='description'/>
                 <button type='submit'>Add Contact</button>
               </form>
             )
@@ -97,6 +101,41 @@
       };
     }
 
+    // Events - 3) We have to define here (the father of the component Form) the method handleOnAddContact
+    handleOnAddContact(event) {
+      //a) cancel the page reloading
+      event.preventDefault();
+      
+      //b) save into a let variable the value received from the web form
+      let contactSubmitted = {
+        name:event.target.name.value,
+        email: event.target.email.value,
+        description: event.target.description.value,
+      }
+      console.log(event.target.name.value);
+      console.log(event.target.email.value);
+      console.log(event.target.description.value);
+
+      //Let's reindex the keys on the contact list
+      for (var i=0;i<this.state.contacts.length;i++) {
+        this.state.contacts[i].key=i+1;
+      }
+      contactSubmitted.key = this.state.contacts.length+1;
+
+      //c) Access the state (via setState) and add the new contact to the contacts state var.
+      //   This invokation of the setState method will trigger a the execution of the render method
+      this.setState({
+        contacts: this.state.contacts.concat([contactSubmitted])
+      })
+
+
+      //d) Let's reset the form
+      event.target.name.value='';
+      event.target.email.value='';
+      event.target.description.value = '';
+      
+    }
+
     render() {
                 var getEmailFromContact = function(contact) { return contact.email };
                 // Here we replace the var contacts by the state var contacts.
@@ -107,14 +146,16 @@
                                                                                                         name={contact.name} 
                                                                                                         email={contact.email} 
                                                                                                         description={contact.description}/>
-                                                                                               });
+                                                                                                     });
+                // Events - 4) Finally we have to pass the method handleOnAddContact to the ContactForm component via props by using 
+                //             bind method. --> <ContactForm contact={this.props.newContact} onAddContact={this.handleOnAddContact.bind(this)} />
                 return (
                         <div className='ContactView'>
                           <h1 className='ContactView-title'>Contacts</h1>
                           <ul className='ContactView-list'>{contactItemElements}</ul>
-                          <ContactForm contact={this.props.newContact} />
+                          <ContactForm contact={this.props.newContact} onAddContact={this.handleOnAddContact.bind(this)} />
                         </div>
-                        )
+                        ) 
               }
       };
   
