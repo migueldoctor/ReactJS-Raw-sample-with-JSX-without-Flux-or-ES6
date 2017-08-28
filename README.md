@@ -579,4 +579,174 @@ by the following nicer one:
                                                                                                         description={contact.description}/>
                                                                                                });
 ```
+
+
+### 11.  Defining state for a React component
+
+Components in react not only have properties, they also have a state. A state is an immutable object, that triggers the render method every time this is modified.
+In order to initialize the state of a component we need to define the method constructor(). Wihin this method we need to invoke super() method, inherited from React.Component class. 
+Once this is done, within the constructor we can define the state by using  *this.state* as indicated in the following script:
+
+```javascript
+ class ContactView extends React.Component {
+    /**
+     * Constructor method allows to define the state of the component.
+     * @memberof ContactView
+     */
+    constructor() { // Components in react apart from properties, they have a state. A state is an immutable object, that triggers the render method every time this is modified. 
+      super();      //We then include the external variable contacts as state variable for the ContactView component, which is the top level compoennt      
       this.state = {
+                contacts : [
+                    {key: 1, name:'Miguel Doctor', email:'migueldoctor@gmail.com', description:'Miguel is the one making this example, so for that reason it will have a description field'},
+                    {key: 2, name:'Bob', description:'Bob is a great user but without email, so for that reason we provide him with a description'},
+                    {key: 3, name:'Joe Citizen',email:'joe@example.co'}
+                ]
+      };
+    }
+```
+
+In consequence in our example we must perform the following changes in order to use the state var contacts:
+ 
+ 1. The global var contacts must be removed
+ 2. In render method from ContactView component, instead of using the global var contacts we have to use the this.state var as indicated below:
+
+  ```javascript
+  var contactItemElements = this.state.contacts.filter(getEmailFromContact).map(contact => { 
+                                                                                                return <ContactItem
+                                                                                                          key={contact.key}
+  ```
+
+ 3. Finally, since the var contact has been included within the highest level component and the global var has been removed, there is no need to pass it as prop, so
+    the entry point of the App will look like this:
+
+  ```javascript
+      ReactDOM.render(<ContactView newContact={newContact} />, document.getElementById('react-app'));
+  ```
+
+In commit [27] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/1c9a90241ca0250fe45830b18e3c5c32303cd37d) we can see the full example source code
+
+### 12.  Managing uncontrolled forms in react
+
+Using form components such as <input> in React presents a challenge that is absent when writing traditional form HTML. For example, in HTML:
+  ```html
+    <input type="text" name="title" value="Untitled" />
+  ```
+This renders an input initialized with the value, Untitled. When the user updates the input, the node's value property will change. However, node.getAttribute('value') will still return the value used at initialization time, Untitled. Unlike HTML, React components must represent the state of the view at any point in time and not only at initialization time. For example, in React:
+
+```javascript
+  render: function() {
+      return <input type="text" name="title1" value="Untitled" />;
+  }
+
+  render: function() {
+      return <input type="text" name="title2" />;
+  }
+```
+This method describes the view at any point in time, the value of the text input "title1" has value attribute defined to Untitled so it should always be Untitled. 
+Which means that the user will not be able to update the value of this component, because it's a *React Controlled Component*. However, the input "title2" has not value attribute
+so it will work as *uncontrolled component*. In the current section we will make use of the second approach, uncontrolled components.
+
+As introduction to controlled components we can state that If you add a value={whatever} property to the input, which makes it a controlled component, then it is read-only unless you add an *onChange* handler that updates the value of whatever
+
+  1. Set inputs in the form, as uncontrolled components.
+
+  ```javascript
+  /*************************** 
+  ** ContactForm component
+  ***************************/
+    class ContactForm extends React.Component {
+      render() {
+              // Events - 1) If we want to use the form in uncontrolled mode we have to remove the attribute value from the input JSX elements. In addition
+              //             Since the components are uncontrolled we need to add the attribute name to be able to recover their values
+              return ( 
+                <form className='ContactForm'>
+                  <input type='text' className='ContactItem-name' placeholder='Name (required)' name='name'/>
+                  <input type='text' className='ContactItem-email' placeholder='Email (optional)' name='email'/>
+                  <textarea className='ContactItem-description' placeholder='Description (optional)' name='description'/>
+                  <button type='submit'>Add Contact</button>
+                </form>
+              )
+          }
+      };
+  ```
+
+  2. Set attribute onsubmit on the form element. This attribute must recaive as prop a method that will be defined in the father component and will be executed when the user submit the form
+
+  ```javascript
+/*************************** 
+ ** ContactForm component
+ ***************************/
+  class ContactForm extends React.Component {
+    render() {
+            // Events - 1) If we want to use the form in uncontrolled mode we have to remove the attribute value from the input JSX elements.
+            // Events - 2) Then we have to add the attribute onSubmit to the form and assign it to a method passed as prop from the father
+            //    component, which means that it's the father the one in charge of define this method and bind it to the child. In addition
+            //    the atribute name must be defined in order to retrieve the value from it
+            return ( 
+              <form className='ContactForm' onSubmit={this.props.onAddContact}>
+                <input type='text' className='ContactItem-name' placeholder='Name (required)' name='name'/>
+                <input type='text' className='ContactItem-email' placeholder='Email (optional)' name='email'/>
+                <textarea className='ContactItem-description' placeholder='Description (optional)' name='description'/>
+                <button type='submit'>Add Contact</button>
+              </form>
+            )
+        }
+    };
+```
+
+3. Now we have to update the father component (ContactView) making two things if we want to get our form working fine.
+  * Create the method handleOnAddContact that will be executed when onSubmit
+
+```javascript
+      // Events - 3) We have to define here (the father of the component Form) the method handleOnAddContact
+    handleOnAddContact(event) {
+      //a) cancel the page reloading
+      event.preventDefault();
+      
+      //b) save into a let variable the value received from the web form
+      let contactSubmitted = {
+        name:event.target.name.value,
+        email: event.target.email.value,
+        description: event.target.description.value,
+      }
+      console.log(event.target.name.value);
+      console.log(event.target.email.value);
+      console.log(event.target.description.value);
+
+      //Let's reindex the keys on the contact list
+      for (var i=0;i<this.state.contacts.length;i++) {
+        this.state.contacts[i].key=i+1;
+      }
+      contactSubmitted.key = this.state.contacts.length+1;
+
+      //c) Access the state (via setState) and add the new contact to the contacts state var.
+      //   This invokation of the setState method will trigger a the execution of the render method
+      this.setState({
+        contacts: this.state.contacts.concat([contactSubmitted])
+      })
+
+
+      //d) Let's reset the form
+      event.target.name.value='';
+      event.target.email.value='';
+      event.target.description.value = '';
+      
+    }
+```
+
+
+  * Passing the just created method to the child component via bind method (so this references will be transformed to the invoker component instead of the component where they have been defined)
+
+```javascript
+ // Events - 4) Finally we have to pass the method handleOnAddContact to the ContactForm component via props by using 
+                //             bind method. --> <ContactForm contact={this.props.newContact} onAddContact={this.handleOnAddContact.bind(this)} />
+                return (
+                        <div className='ContactView'>
+                          <h1 className='ContactView-title'>Contacts</h1>
+                          <ul className='ContactView-list'>{contactItemElements}</ul>
+                          <ContactForm contact={this.props.newContact} onAddContact={this.handleOnAddContact.bind(this)} />
+                        </div>
+                        )
+```
+
+On commit [29] (https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/ef5345046ba735688f5a512ed336db8830d08125) you can see the full code of the app
