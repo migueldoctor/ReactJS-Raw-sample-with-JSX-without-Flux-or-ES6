@@ -670,7 +670,7 @@ As introduction to controlled components we can state that If you add a value={w
       };
   ```
 
-  2. Set attribute onsubmit on the form element. This attribute must recaive as prop a method that will be defined in the father component and will be executed when the user submit the form
+  2. Set attribute onSubmit on the form element. This attribute must recaive as prop a method that will be defined in the father component and will be executed when the user submit the form
 
   ```javascript
 /*************************** 
@@ -695,7 +695,8 @@ As introduction to controlled components we can state that If you add a value={w
 ```
 
 3. Now we have to update the father component (ContactView) making two things if we want to get our form working fine.
-  * Create the method handleOnAddContact that will be executed when onSubmit
+  * Create the method handleOnAddContact that will be executed when onSubmit. Since the form is uncontrolled we need to retrieve
+    the user inputs from event.target reference
 
 ```javascript
       // Events - 3) We have to define here (the father of the component Form) the method handleOnAddContact
@@ -750,3 +751,187 @@ As introduction to controlled components we can state that If you add a value={w
 ```
 
 On commit [29](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/ef5345046ba735688f5a512ed336db8830d08125) you can see the full code of the app
+
+### 13.  Managing controlled forms in react
+
+A controlled input accepts its current value as a prop, as well as a callback to change that value. You could say it’s a more “React way” of approaching this (which doesn’t mean you should always use it). In consequence your inputs should define the attribute value (checked for checkbox and radio input types) and the attritbute onChange.
+
+```html
+  <input value={someValue} onChange={handleChange} />
+```
+
+Following this approach the value of this input has to live in the state somewhere. Typically, the component that renders the input (aka the form component) saves that in its state: So the DATA Section 
+of the srcript must be removed. The inputs will be now encapsulated within the ContactForm component.
+
+
+```javascript
+/******************************************* 
+ * DATA SECTION
+ ******************************************/
+  // Then we create a new empty contact object
+  var newContact = {name: "", email: "", description: ""}
+```
+
+Once removed we need to remove the attribute contact from the ContactForm instance and the newContact attribute from the ContactView instance.
+
+
+```javascript
+
+//<ContactForm contact={this.props.newContact} onAddContact={this.handleOnAddContact.bind(this)} />
+  <ContactForm onAddContact={this.handleOnAddContact.bind(this)} />
+// ...
+//ReactDOM.render(<ContactView newContact={newContact} />, document.getElementById('react-app'));
+  ReactDOM.render(<ContactView/>, document.getElementById('react-app'));
+```
+
+Now that everything is more encapsulated and reusable we can have a look into the Controlled ContactForm Component.
+Please, pay attention to the handle custom methods (tagged with *2)* )in the source code below:
+
+Every time you type a new character, handleContactNameChange (or the others, depending on where you type) is called. It takes in the new value of the input and sets it in the state.
+This flow kind of ‘pushes’ the value changes to the form component, so the Form component always has the current value of the input, without needing to ask for it explicitly.
+*This means your data (state) and UI (inputs) are always in sync*. The state gives the value to the input, and the input asks the Form to change the current value.
+This also means that the form component can respond to input changes immediately, which could be very usefull on any of the following scenarios:
+  1. in-place feedback, like validations
+  2. disabling the button unless all fields have valid data
+  3. enforcing a specific input format, like credit card numbers
+
+```javascript
+/*************************** 
+ ** ContactForm component
+ ***************************/
+    /**
+     * ContactForm used in controlled way
+     * 
+     */
+    class ContactForm extends React.Component {
+      // 1) Since the form is going to be controlled by react we need to store the input values into the state of the Form component
+      constructor() {
+        super();
+        this.state = {
+          contactToAddBean: {name: '', email:'', description:''}
+        };
+      }
+      //2) We need to create custom methods to handle the change of the values in the fields,
+      //   otherwise the inputs will be readonly as far as react is concern
+      handleContactNameChange(event) {
+        // The most direct way of updating the state mutating state is to directly copy by using the ES6 spread/rest operator: 
+        var newContactToAddBean = {...this.state.contactToAddBean} //here deconstruct state.abc into a new object-- effectively making a copy
+        newContactToAddBean.name = event.target.value;
+        this.setState({contactToAddBean: newContactToAddBean});
+      };
+
+      handleContacEmailChange(event) {
+        var newContactToAddBean = {...this.state.contactToAddBean}
+        newContactToAddBean.email = event.target.value;
+        this.setState({contactToAddBean: newContactToAddBean});
+      };
+
+      handleContactDescriptionChange(event) {
+        var newContactToAddBean = {...this.state.contactToAddBean}
+        newContactToAddBean.description = event.target.value;
+        this.setState({contactToAddBean: newContactToAddBean});
+      };
+
+      //3) Now, since the inputs are managed from this component we need to create this method to pass it to the father component.
+      submitContactToAdd(event)
+      {
+        event.preventDefault();
+        this.props.onAddContact(this.state.contactToAddBean); // This line passes the state to the component father,
+                                                              // onAddContact must be defined in the father and pass it via props
+        var newContactToAddBean = {...this.state.contactToAddBean}
+        
+        //Finally reset the form
+        newContactToAddBean.name = '';
+        newContactToAddBean.email = '';
+        newContactToAddBean.description = ''; 
+        this.setState({contactToAddBean: newContactToAddBean});
+      }
+
+      // 4) On form, we invoke on onSubmit attribute the above defined custom method
+      //    The inputs must define the onChange attribute assigned to the handle methods defined above
+      render() {
+                return ( 
+                  <form className='ContactForm' onSubmit={this.submitContactToAdd.bind(this)}>
+                    <input type='text' className='ContactItem-name' placeholder='Name (required)' value={this.state.contactToAddBean.name} onChange={this.handleContactNameChange.bind(this)}/>
+                    <input type='text' className='ContactItem-email' placeholder='Email (optional)' value={this.state.contactToAddBean.email} onChange={this.handleContacEmailChange.bind(this)}/>
+                    <textarea className='ContactItem-description' placeholder='Description (optional)' value={this.state.contactToAddBean.description} onChange={this.handleContactDescriptionChange.bind(this)}/>
+                    <button type='submit'>Add Contact</button>
+                  </form>
+                )
+            }
+    };
+```
+
+It's important to realize that now, all information and events and actions related with the form are selfcontained and properly encapsulated within the component with no dependecies from outside.
+Now, it's the father component who should pass it a function doing whatever he wants to do with the data provided by the form, but without dealing with inputs events or whatver. So if the Form component changes, the faher doesn't need to be changed, and viceversa. Let's see how the father component ContactView will look like following this approach
+
+```javascript
+/*************************** 
+ ** ContactView component
+ ***************************/
+  class ContactView extends React.Component {
+    /**
+     * Constructor method allows to define the state of the component.
+     * @memberof ContactView
+     */
+    constructor() { // Components in react apart from properties, they have a state. A state is an immutable object, that triggers the render method every time this is modified. 
+      super();  
+      this.state = {
+                contacts : [
+                    {key: 1, name:'Miguel Doctor', email:'migueldoctor@gmail.com', description:'Miguel is the one making this example, so for that reason it will have a description field'},
+                    {key: 2, name:'Bob', description:'Bob is a great user but without email, so for that reason we provide him with a description'},
+                    {key: 3, name:'Joe Citizen',email:'joe@example.co'}
+                ]
+      };
+    }
+    
+    //1) Since the component is connected to the ContactForm in a Controlled way, it doesn't need to 
+    //   handle the event inputs, but it needs to retrieve the input value from
+    //   the child component in this method which will be passed to the child via props
+    //   The argument of the function is the data received from the child
+    handleOnAddContact(contactSubmitted){
+
+      //Let's reindex the keys on the contact list
+      for (var i=0;i<this.state.contacts.length;i++) {
+        this.state.contacts[i].key=i+1;
+      }
+      contactSubmitted.key = this.state.contacts.length+1;
+
+      // Access the state (via setState) and add the new contact to the contacts state var.
+      //   This invokation of the setState method will trigger a the execution of the render method
+      this.setState({
+        contacts: this.state.contacts.concat([contactSubmitted])
+      })      
+    }
+
+    render() {
+                var getEmailFromContact = function(contact) { return contact.email };
+                // Here we replace the var contacts by the state var contacts.
+                // IMPORTANT. In this way, everytime the array contacts is updated, since it's part of the state, the render method will be executed again, without reloading
+                var contactItemElements = this.state.contacts.filter(getEmailFromContact).map(contact => { // Here we make use of the arrow function from ES6 
+                                                                                              return <ContactItem
+                                                                                                        key={contact.key}
+                                                                                                        name={contact.name} 
+                                                                                                        email={contact.email} 
+                                                                                                        description={contact.description}/>
+                                                                                                     });
+                return (
+                        <div className='ContactView'>
+                          <h1 className='ContactView-title'>Contacts</h1>
+                          <ul className='ContactView-list'>{contactItemElements}</ul>
+                          <ContactForm onAddContact={this.handleOnAddContact.bind(this)} />
+                        </div>
+                        )
+              }
+      };
+```
+
+In commit[32](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/2f73019f4754da2471beec7f124f43bc629bc633) you can find the final version of the app after becoming "controlled". The uncontrolled version of the sample will remain in the file mainES6NoControlledForms.jsx in case you need it to have a look.
+
+### 14.  Uncontrolled vs Controlled forms in react
+
+So, what approach should we follow in our apps? Well, there is no answer for that question, it depends on the UX experience you want to achieve. Both the controlled and uncontrolled form fields have their merit. Evaluate your specific situation and pick the approach — what works for you is good enough.
+
+If your form is incredibly simple in terms of UI feedback, uncontrolled with refs is entirely fine. You don’t have to listen to what the various articles are saying is “bad”. Also, this is not an once-and-for-all decision: you can always migrate to controlled input.
+
+I recommend to have a look in the following [link](https://goshakkk.name/controlled-vs-uncontrolled-inputs-react/) in order to clarify and to get a better understanding about the differences between Controlled and Uncontrolled forms in React. 
