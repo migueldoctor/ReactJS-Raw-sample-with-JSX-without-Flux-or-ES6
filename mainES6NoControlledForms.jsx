@@ -1,4 +1,11 @@
 /******************************************* 
+ * DATA SECTION
+ ******************************************/
+      // Then we create a new empty contact object
+      var newContact = {name: "", email: "", description: ""}
+
+
+/******************************************* 
  * COMPONENTS CREATION SECTION 
  ******************************************/
 
@@ -7,7 +14,21 @@
  ***************************/
 
   class ContactItem extends React.Component {
-   
+        /** React.PropTypes has moved into a different package since React v15.5. Please use the prop-types library instead. 
+         * So that it's why in this ES6 version is commented. In order to use it you must import the package as described here
+         * https://www.npmjs.com/package/prop-types or including within the html the following script tag
+         * <script src="https://unpkg.com/prop-types/prop-types.js"></script>
+         * And then define it after the creation of the class
+         * Remember to import it at the begining of the script:
+         * import PropTypes from 'prop-types'; // ES6 
+         * 
+        propTypes:{
+          name:React.PropTypes.string.isRequired, //Pay attention because PropTypes here starts with capitals but in the line up it starts in lower case. 
+          email:React.PropTypes.string,
+          description:React.PropTypes.string
+        },*/
+
+
       render() {
           // Wrong! There is no need to specify the key here: <li key={this.props.key}> because it only makes sense if you want to return an array variable so
           // it should be placed in the return contained in the map function. See https://fb.me/react-warning-keys for more information
@@ -19,7 +40,6 @@
                   </li>
        }
   };
-  
   // Proptypes definition
   // PropTypes exports a range of validators that can be used to make sure the data you receive is valid. 
   // In this example, we're using PropTypes.string 
@@ -41,66 +61,25 @@
 /*************************** 
  ** ContactForm component
  ***************************/
-    /**
-     * ContactForm used in controlled way
-     * 
-     */
-    class ContactForm extends React.Component {
-      // 1) Since the form is going to be controlled by react we need to store the input values into the state of the Form component
-      constructor() {
-        super();
-        this.state = {
-          contactToAddBean: {name: '', email:'', description:''}
-        };
-      }
-      //2) We need to create methods to handle the change of the values in the fields,
-      //   otherwise the inputs will be readonly as far as react is concern
-      handleContactNameChange(event) {
-        // The most direct way of updating the state mutating state is to directly copy by using the ES6 spread/rest operator: 
-        var newContactToAddBean = {...this.state.contactToAddBean} //here deconstruct state.abc into a new object-- effectively making a copy
-        newContactToAddBean.name = event.target.value;
-        this.setState({contactToAddBean: newContactToAddBean});
-      };
-
-      handleContacEmailChange(event) {
-        var newContactToAddBean = {...this.state.contactToAddBean}
-        newContactToAddBean.email = event.target.value;
-        this.setState({contactToAddBean: newContactToAddBean});
-      };
-
-      handleContactDescriptionChange(event) {
-        var newContactToAddBean = {...this.state.contactToAddBean}
-        newContactToAddBean.description = event.target.value;
-        this.setState({contactToAddBean: newContactToAddBean});
-      };
-
-      //3) Now, since the inputs are managed from this component we need to create this method to pass it to the father component.
-      submitContactToAdd(event)
-      {
-        event.preventDefault();
-        this.props.onAddContact(this.state.contactToAddBean); // This line pass the state to the component father,
-                                                              // onAddContact must be defined in the father and pass it via props
-        var newContactToAddBean = {...this.state.contactToAddBean}
-        
-        //Finally reset the form
-        newContactToAddBean.name = '';
-        newContactToAddBean.email = '';
-        newContactToAddBean.description = ''; 
-        this.setState({contactToAddBean: newContactToAddBean});
-      }
-
-      // 4) On form, we invoke on onSubmit attribute the above defined custom method
-      //    The inputs must define the onChange attribute assigned to the handle methods defined above
-      render() {
-                return ( 
-                  <form className='ContactForm' onSubmit={this.submitContactToAdd.bind(this)}>
-                    <input type='text' className='ContactItem-name' placeholder='Name (required)' value={this.state.contactToAddBean.name} onChange={this.handleContactNameChange.bind(this)}/>
-                    <input type='text' className='ContactItem-email' placeholder='Email (optional)' value={this.state.contactToAddBean.email} onChange={this.handleContacEmailChange.bind(this)}/>
-                    <textarea className='ContactItem-description' placeholder='Description (optional)' value={this.state.contactToAddBean.description} onChange={this.handleContactDescriptionChange.bind(this)}/>
-                    <button type='submit'>Add Contact</button>
-                  </form>
-                )
-            }
+  class ContactForm extends React.Component {
+    render() {
+            // Events - 1) If we want to use the form in uncontrolled mode we have to remove the attribute value from the input JSX elements.
+            // Events - 2) Then we have to add the attribute onSubmit to the form and assign it to a method passed as prop from the father
+            //    component, which means that it's the father the one in charge of define this method and bind it to the child. In addition
+            //    the atribute name must be defined in order to retrieve the value from it
+            return ( 
+              <form className='ContactForm' onSubmit={this.props.onAddContact}>
+                <input type='text' className='ContactItem-name' placeholder='Name (required)' name='name'/>
+                <input type='text' className='ContactItem-email' placeholder='Email (optional)' name='email'/>
+                <textarea className='ContactItem-description' placeholder='Description (optional)' name='description'/>
+                <button type='submit'>Add Contact</button>
+              </form>
+            )
+        }
+    };
+  
+    ContactForm.propTypes = {
+      contact: PropTypes.object.isRequired
     };
       
 /*************************** 
@@ -112,7 +91,7 @@
      * @memberof ContactView
      */
     constructor() { // Components in react apart from properties, they have a state. A state is an immutable object, that triggers the render method every time this is modified. 
-      super();  
+      super();      //We then include the external variable contacts as state variable for the ContactView component, which is the top level compoennt      
       this.state = {
                 contacts : [
                     {key: 1, name:'Miguel Doctor', email:'migueldoctor@gmail.com', description:'Miguel is the one making this example, so for that reason it will have a description field'},
@@ -121,12 +100,21 @@
                 ]
       };
     }
-    
-    //1) Since the component is connected to the ContactForm in a Controlled way, it doesn't need to 
-    //   handle the event inputs, but it needs to retrieve the input value from
-    //   the child component in this method which will be passed to the child via props
-    //   The argument of the function is the data received from the child
-    handleOnAddContact(contactSubmitted){
+
+    // Events - 3) We have to define here (the father of the component Form) the method handleOnAddContact
+    handleOnAddContact(event) {
+      //a) cancel the page reloading
+      event.preventDefault();
+      
+      //b) save into a let variable the value received from the web form
+      let contactSubmitted = {
+        name:event.target.name.value,
+        email: event.target.email.value,
+        description: event.target.description.value,
+      }
+      console.log(event.target.name.value);
+      console.log(event.target.email.value);
+      console.log(event.target.description.value);
 
       //Let's reindex the keys on the contact list
       for (var i=0;i<this.state.contacts.length;i++) {
@@ -134,11 +122,18 @@
       }
       contactSubmitted.key = this.state.contacts.length+1;
 
-      // Access the state (via setState) and add the new contact to the contacts state var.
+      //c) Access the state (via setState) and add the new contact to the contacts state var.
       //   This invokation of the setState method will trigger a the execution of the render method
       this.setState({
         contacts: this.state.contacts.concat([contactSubmitted])
-      })      
+      })
+
+
+      //d) Let's reset the form
+      event.target.name.value='';
+      event.target.email.value='';
+      event.target.description.value = '';
+      
     }
 
     render() {
@@ -152,17 +147,25 @@
                                                                                                         email={contact.email} 
                                                                                                         description={contact.description}/>
                                                                                                      });
+                // Events - 4) Finally we have to pass the method handleOnAddContact to the ContactForm component via props by using 
+                //             bind method. --> <ContactForm contact={this.props.newContact} onAddContact={this.handleOnAddContact.bind(this)} />
                 return (
                         <div className='ContactView'>
                           <h1 className='ContactView-title'>Contacts</h1>
                           <ul className='ContactView-list'>{contactItemElements}</ul>
-                          <ContactForm onAddContact={this.handleOnAddContact.bind(this)} />
+                          <ContactForm contact={this.props.newContact} onAddContact={this.handleOnAddContact.bind(this)} />
                         </div>
                         ) 
               }
       };
+  
+  ContactView.propTypes = {
+    // Since included in the status this prop is not needed any more 
+    //contacts: PropTypes.array.isRequired,
+    newContact: PropTypes.object.isRequired
+  }
 
 /******************************************* 
  * ENTRY POINT SECTION 
  ******************************************/
-    ReactDOM.render(<ContactView/>, document.getElementById('react-app'));
+    ReactDOM.render(<ContactView newContact={newContact} />, document.getElementById('react-app'));
