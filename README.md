@@ -862,7 +862,7 @@ This also means that the form component can respond to input changes immediately
     };
 ```
 
-It's important to realize that now, all information and events and actions related with the form are selfcontained and properly encapsulated within the component with no dependecies from outside.
+It's important to realize that now, all information and events and actions related to the form are selfcontained and properly encapsulated within the component with no dependecies from outside.
 Now, it's the father component who should pass it a function doing whatever he wants to do with the data provided by the form, but without dealing with inputs events or whatver. So if the Form component changes, the faher doesn't need to be changed, and viceversa. Let's see how the father component ContactView will look like following this approach
 
 ```javascript
@@ -901,7 +901,7 @@ Now, it's the father component who should pass it a function doing whatever he w
       //   This invokation of the setState method will trigger a the execution of the render method
       this.setState({
         contacts: this.state.contacts.concat([contactSubmitted])
-      })      
+      })
     }
 
     render() {
@@ -934,4 +934,249 @@ So, what approach should we follow in our apps? Well, there is no answer for tha
 
 If your form is incredibly simple in terms of UI feedback, uncontrolled with refs is entirely fine. You don’t have to listen to what the various articles are saying is “bad”. Also, this is not an once-and-for-all decision: you can always migrate to controlled input.
 
-I recommend to have a look in the following [link](https://goshakkk.name/controlled-vs-uncontrolled-inputs-react/) in order to clarify and to get a better understanding about the differences between Controlled and Uncontrolled forms in React. 
+I recommend to have a look in the following [link](https://goshakkk.name/controlled-vs-uncontrolled-inputs-react/) in order to clarify and to get a better understanding about the differences between Controlled and Uncontrolled forms in React.
+
+### 15.  Splitting React Components into separate files
+
+One of the advantages of using react is the chance of split your UI into independent components that can be reused in many places or projects. In order to do so, React encourages us to create a different jsx file for each component that we create. In order to make all this components working fine together is strongly recommended to make use of a module managing system like [Webpack](http://webpack.github.io/) [or SystemJS](https://github.com/systemjs/systemjs). But for the purpose of this tutorial, and since we are using client side rendering, we are going to illustrate this matter by assigning react components to the window object. IMPORTANT: The presented method is not for production use, and it's discouraged. It's presented here just for educational reasons.
+
+1. We create a folder within our project containing our components. The name of the folder can be 'components' and each component must be located into a dedicated folder as indicated as follows. Finally the name of the file for each component must be the name of the class dedined on it.
+   
++ root
+  - components
+    - contact-form
+      - ContactForm.jsx
+    - contact-item
+      - ContactItem.jsx
+    - contact-view
+      - ContactView.jsx
+  - index.html
+  - mainES6.jsx
+
+2. The code for each jsx file is displayed below. Note that in order to make the components available from one file to another we have added a line at the end of each file. Please read the begining of the current section in order to get info about why this method is descouraged and only usefull for learning reasons.
+
++ ContactForm.jsx
+  ```javascript
+  /*************************** 
+  ** ContactForm component
+  ***************************/
+      /**
+      * ContactForm used in controlled way
+      * 
+      */
+      class ContactForm extends React.Component {
+          // 1) Since the form is going to be controlled by react we need to store the input values into the state of the Form component
+          constructor() {
+            super();
+            this.state = {
+              contactToAddBean: {name: '', email:'', description:''}
+            };
+          }
+          //2) We need to create methods to handle the change of the values in the fields,
+          //   otherwise the inputs will be readonly as far as react is concern
+          handleContactNameChange(event) {
+            // The most direct way of updating the state mutating state is to directly copy by using the ES6 spread/rest operator: 
+            var newContactToAddBean = {...this.state.contactToAddBean} //here deconstruct state.abc into a new object-- effectively making a copy
+            newContactToAddBean.name = event.target.value;
+            this.setState({contactToAddBean: newContactToAddBean});
+          };
+    
+          handleContacEmailChange(event) {
+            var newContactToAddBean = {...this.state.contactToAddBean}
+            newContactToAddBean.email = event.target.value;
+            this.setState({contactToAddBean: newContactToAddBean});
+          };
+    
+          handleContactDescriptionChange(event) {
+            var newContactToAddBean = {...this.state.contactToAddBean}
+            newContactToAddBean.description = event.target.value;
+            this.setState({contactToAddBean: newContactToAddBean});
+          };
+    
+          //3) Now, since the inputs are managed from this component we need to create this method to pass it to the father component.
+          submitContactToAdd(event)
+          {
+            event.preventDefault();
+            this.props.onAddContact(this.state.contactToAddBean); // This line pass the state to the component father,
+                                                                  // onAddContact must be defined in the father and pass it via props
+            var newContactToAddBean = {...this.state.contactToAddBean}
+            
+            //Finally reset the form
+            newContactToAddBean.name = '';
+            newContactToAddBean.email = '';
+            newContactToAddBean.description = ''; 
+            this.setState({contactToAddBean: newContactToAddBean});
+          }
+    
+          // 4) On form, we invoke on onSubmit attribute the above defined custom method
+          //    The inputs must define the onChange attribute assigned to the handle methods defined above
+          render() {
+                    return ( 
+                      <form className='ContactForm' onSubmit={this.submitContactToAdd.bind(this)}>
+                        <input type='text' className='ContactItem-name' placeholder='Name (required)' value={this.state.contactToAddBean.name} onChange={this.handleContactNameChange.bind(this)}/>
+                        <input type='text' className='ContactItem-email' placeholder='Email (optional)' value={this.state.contactToAddBean.email} onChange={this.handleContacEmailChange.bind(this)}/>
+                        <textarea className='ContactItem-description' placeholder='Description (optional)' value={this.state.contactToAddBean.description} onChange={this.handleContactDescriptionChange.bind(this)}/>
+                        <button type='submit'>Add Contact</button>
+                      </form>
+                    )
+                }
+        };
+
+
+    // Since our jsx files are wrapped into closure during babel processing, and we are doing so from the browser we need
+    // to export this component. The simplest way is adding the component to the window object
+    // WARNING: This method is only for teaching purposes!!! In real application we should use webpack bulding system!!!!!!
+    window.ContactForm = ContactForm;
+
+  ```
+
++ ContactItem.jsx
+  ```javascript
+  /*************************** 
+  ** ContactItem component
+  ***************************/
+
+  class ContactItem extends React.Component {
+      
+        render() {
+            // Wrong! There is no need to specify the key here: <li key={this.props.key}> because it only makes sense if you want to return an array variable so
+            // it should be placed in the return contained in the map function. See https://fb.me/react-warning-keys for more information
+            //return <li key={this.props.key}>
+            return  <li className='ContactItem'> 
+                      <h2 className='ContactItem-name'>{this.props.name}</h2>
+                      <a className='ContactItem-email' href={'mailto:'+this.props.email}>{this.props.email}</a>
+                      <div className='ContactItem-description'>{this.props.description}</div>
+                    </li>
+          }
+    };
+
+    // Proptypes definition
+    // PropTypes exports a range of validators that can be used to make sure the data you receive is valid. 
+    // In this example, we're using PropTypes.string 
+    // When an invalid value is provided for a prop, a warning will be shown in the JavaScript console. 
+    //For performance reasons, propTypes is only checked in development mode.
+    ContactItem.propTypes = {
+      name: PropTypes.string.isRequired, 
+      email:PropTypes.string,
+      description:PropTypes.string
+    };
+
+    // You can also define default Prop Values as indicated in the following sample
+    // Specifies the default values for props:
+    ContactItem.defaultProps = {
+      name: 'No name typed'
+    };
+
+    // Since our jsx files are wrapped into closure during babel processing, and we are doing so from the browser we need
+    // to export this component. The simplest way is adding the component to the window object
+    // WARNING: This method is only for teaching purposes!!! In real application we should use webpack bulding system!!!!!!
+    window.ContactItem = ContactItem;
+
+  ```
+
++ ContactView.jsx
+  ```javascript
+  /*************************** 
+  ** ContactView component
+  ***************************/
+  class ContactView extends React.Component {
+      /**
+      * Constructor method allows to define the state of the component.
+      * @memberof ContactView
+      */
+      constructor() { // Components in react apart from properties, they have a state. A state is an immutable object, that triggers the render method every time this is modified. 
+        super();  
+        this.state = {
+                  contacts : [
+                      {key: 1, name:'Miguel Doctor', email:'migueldoctor@gmail.com', description:'Miguel is the one making this example, so for that reason it will have a description field'},
+                      {key: 2, name:'Bob', description:'Bob is a great user but without email, so for that reason we provide him with a description'},
+                      {key: 3, name:'Joe Citizen',email:'joe@example.co'}
+                  ]
+        };
+      }
+      
+      //1) Since the component is connected to the ContactForm in a Controlled way, it doesn't need to 
+      //   handle the event inputs, but it needs to retrieve the input value from
+      //   the child component in this method which will be passed to the child via props
+      //   The argument of the function is the data received from the child
+      handleOnAddContact(contactSubmitted){
+
+        //Let's reindex the keys on the contact list
+        for (var i=0;i<this.state.contacts.length;i++) {
+          this.state.contacts[i].key=i+1;
+        }
+        contactSubmitted.key = this.state.contacts.length+1;
+
+        // Access the state (via setState) and add the new contact to the contacts state var.
+        //   This invokation of the setState method will trigger a the execution of the render method
+        this.setState({
+          contacts: this.state.contacts.concat([contactSubmitted])
+        })      
+      }
+
+      render() {
+                  var getEmailFromContact = function(contact) { return contact.email };
+                  // Here we replace the var contacts by the state var contacts.
+                  // IMPORTANT. In this way, everytime the array contacts is updated, since it's part of the state, the render method will be executed again, without reloading
+                  var contactItemElements = this.state.contacts.filter(getEmailFromContact).map(contact => { // Here we make use of the arrow function from ES6 
+                                                                                                return <ContactItem
+                                                                                                          key={contact.key}
+                                                                                                          name={contact.name} 
+                                                                                                          email={contact.email} 
+                                                                                                          description={contact.description}/>
+                                                                                                      });
+                  return (
+                          <div className='ContactView'>
+                            <h1 className='ContactView-title'>Contacts</h1>
+                            <ul className='ContactView-list'>{contactItemElements}</ul>
+                            <ContactForm onAddContact={this.handleOnAddContact.bind(this)} />
+                          </div>
+                          ) 
+                }
+  };
+
+
+    // Since our jsx files are wrapped into closure during babel processing, and we are doing so from the browser we need
+    // to export this component. The simplest way is adding the component to the window object
+    // WARNING: This method is only for teaching purposes!!! In real application we should use webpack bulding system!!!!!!
+    window.ContactView = ContactView;
+
+  ```
+
++ mainES6.jsx - This file only contains now the entry point for the APP
+  ```javascript
+  /******************************************* 
+  * ENTRY POINT SECTION 
+  ******************************************/
+  //
+  ReactDOM.render(<ContactView/>, document.getElementById('react-app'));
+  ```
+
++ index.html - We need to include the script tags for all the jsx files we have created individually for each component
+
+  ```html
+  <html>
+    <head>
+      <meta charset="UTF-8" />
+      <title>I'm in Sample React app USING JSX and using ES6 but without Flux, Redux, Webpack, Gulp and so on... just JS + JSX!</title>
+      <link rel="stylesheet" href="style.css"/>
+    </head>
+    <body>
+      
+      <!-- 1) This is the DIV where the react app will be rendered -->
+      <div id="react-app">
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/react/15.5.4/react.js"></script>
+      <script src="https://cdn.jsdelivr.net/react/15.5.4/react-dom.js"></script>
+      <script src="https://unpkg.com/prop-types/prop-types.js"></script>
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+
+      <script type="text/babel" src="./components/contact-item/ContactItem.jsx"></script>
+      <script type="text/babel" src="./components/contact-form/ContactForm.jsx"></script>
+      <script type="text/babel" src="./components/contact-view/ContactView.jsx"></script>
+      <script type="text/babel" src="./mainES6.jsx"></script>
+    </body>
+  </html>
+  ```
