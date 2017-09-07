@@ -13,6 +13,7 @@
             contactToAddBean: {name: '', email:'', description:''}
           };
         }
+
         //2) We need to create methods to handle the change of the values in the fields,
         //   otherwise the inputs will be readonly as far as react is concern
         handleContactNameChange(event) {
@@ -40,28 +41,42 @@
           event.preventDefault();
           this.props.onAddContact(this.state.contactToAddBean); // This line pass the state to the component father,
                                                                 // onAddContact must be defined in the father and pass it via props
-          var newContactToAddBean = {...this.state.contactToAddBean}
+          var newContactToAddBean = {...this.state.contactToAddBean};
           
           //Finally reset the form
           newContactToAddBean.name = '';
           newContactToAddBean.email = '';
           newContactToAddBean.description = ''; 
           this.setState({contactToAddBean: newContactToAddBean});
+        };
+
+        isValid() 
+        {
+          const {contactToAddBean} = this.state;
+          if (contactToAddBean.name.length >0) {
+            if (contactToAddBean.email.length >0) {
+                return contactToAddBean.email.includes("@");
+              }
+            else return true;
+          }
+          else return false;
         }
   
         // 4) On form, we invoke on onSubmit attribute the above defined custom method
         //    The inputs must define the onChange attribute assigned to the handle methods defined above
         render() {
-                  return ( 
+              const isEnabled = this.isValid();
+              
+              return ( 
                     <form className='ContactForm' onSubmit={this.submitContactToAdd.bind(this)}>
                       <input type='text' className='ContactItem-name' placeholder='Name (required)' value={this.state.contactToAddBean.name} onChange={this.handleContactNameChange.bind(this)}/>
                       <input type='text' className='ContactItem-email' placeholder='Email (optional)' value={this.state.contactToAddBean.email} onChange={this.handleContacEmailChange.bind(this)}/>
                       <textarea className='ContactItem-description' placeholder='Description (optional)' value={this.state.contactToAddBean.description} onChange={this.handleContactDescriptionChange.bind(this)}/>
-                      <button type='submit'>Add Contact</button>
+                      <button type='submit' disabled = {!isEnabled}> Add Contact</button>
                     </form>
                   )
               }
-      };
+      }
 
 
   // Since our jsx files are wrapped into closure during babel processing, and we are doing so from the browser we need
