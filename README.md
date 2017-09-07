@@ -1180,3 +1180,50 @@ One of the advantages of using react is the chance of split your UI into indepen
     </body>
   </html>
   ```
+
+### 16.  Forms validation using Controlled forms in ReactJS
+
+Let's show how to disable the submit form button in case the user doesn't type any value for name input fields. In case of email and description inputs they are not mandatory so the validation doesn't apply to them.
+
+1. Go to ContactForm.jsx and add the following method isValid to the class (the name can be whatever you want)
+
+```javascript
+isValid() {
+          const {contactToAddBean} = this.state; // In this way we retrive the element contactToAddBean from the state
+          return contactToAddBean.name.length >0;
+        }
+```
+
+2. Then modify the render method by invoking the isValid method and by adding the attribute *disabled = {!isEnabled}* to the button tag.
+
+```javascript
+render() {
+              const isEnabled = this.isValid(); //<-- In this way we check everytime we render if the forms is Enabled or not
+              
+              return ( 
+                    <form className='ContactForm' onSubmit={this.submitContactToAdd.bind(this)}>
+                    .....
+                      <button type='submit' disabled = {!isEnabled}> Add Contact</button> 
+                    </form>
+                  )
+              }
+      };
+```
+
+3. You can tweak the isValid method to make other assertions. For example you must be sure that the email, if it's not empty it contains a @ before enabling the submit button:
+
+```javascript
+isValid() 
+        {
+          const {contactToAddBean} = this.state;
+          if (contactToAddBean.name.length >0) {
+            if (contactToAddBean.email.length >0) {
+                return contactToAddBean.email.includes("@");
+              }
+            else return true;
+          }
+          else return false;
+        }
+```
+
+On commit [36](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/32033149299224d4a6ecd5af525126742506692a) this validation feature has been implemented.
