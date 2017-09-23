@@ -34,7 +34,7 @@
           newContactToAddBean.description = event.target.value;
           this.setState({contactToAddBean: newContactToAddBean});
         };
-  
+
         //3) Now, since the inputs are managed from this component we need to create this method to pass it to the father component.
         submitContactToAdd(event)
         {
@@ -74,12 +74,21 @@
             errorObject.name = true;
           }
 
-          if (contactToAddBean.name.length>0 && !contactToAddBean.email.includes("@")) {
+          if (contactToAddBean.email.length>0 && !contactToAddBean.email.includes("@")) {
             errorObject.email = true;
           }
 
           return errorObject;
         }
+
+        /* on working
+       handleBlur = function handleBlur(field) {
+         return function (evt) {
+          this.setState({
+            touched: { ...this.state.touched, [field]: true },
+            });
+          };
+        };*/
 
         // 4) On form, we invoke on onSubmit attribute the above defined custom method
         //    The inputs must define the onChange attribute assigned to the handle methods defined above
