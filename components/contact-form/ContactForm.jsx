@@ -61,23 +61,42 @@
           }
           else return false;
         }
-  
+
+        getErrorInputs()
+        {
+          const {contactToAddBean} = this.state;
+          let errorObject = {
+            name: false,
+            email: false
+          };
+
+          if (contactToAddBean.name.length<1) {
+            errorObject.name = true;
+          }
+
+          if (contactToAddBean.name.length>0 && !contactToAddBean.email.includes("@")) {
+            errorObject.email = true;
+          }
+
+          return errorObject;
+        }
+
         // 4) On form, we invoke on onSubmit attribute the above defined custom method
         //    The inputs must define the onChange attribute assigned to the handle methods defined above
         render() {
               const isEnabled = this.isValid();
-              
+              const errors = this.getErrorInputs();
+
               return ( 
                     <form className='ContactForm' onSubmit={this.submitContactToAdd.bind(this)}>
-                      <input type='text' className='ContactItem-name' placeholder='Name (required)' value={this.state.contactToAddBean.name} onChange={this.handleContactNameChange.bind(this)}/>
-                      <input type='text' className='ContactItem-email' placeholder='Email (optional)' value={this.state.contactToAddBean.email} onChange={this.handleContacEmailChange.bind(this)}/>
+                      <input type='text' className={errors.name ? 'error ContactItem-name': 'ContactItem-name'} placeholder='Name (required)' value={this.state.contactToAddBean.name} onChange={this.handleContactNameChange.bind(this)}/>
+                      <input type='text' className={errors.email ? 'error ContactItem-email' :'ContactItem-email' } placeholder='Email (optional)' value={this.state.contactToAddBean.email} onChange={this.handleContacEmailChange.bind(this)}/>
                       <textarea className='ContactItem-description' placeholder='Description (optional)' value={this.state.contactToAddBean.description} onChange={this.handleContactDescriptionChange.bind(this)}/>
                       <button type='submit' disabled = {!isEnabled}> Add Contact</button>
                     </form>
                   )
               }
       }
-
 
   // Since our jsx files are wrapped into closure during babel processing, and we are doing so from the browser we need
   // to export this component. The simplest way is adding the component to the window object
