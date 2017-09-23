@@ -642,7 +642,8 @@ This renders an input initialized with the value, Untitled. When the user update
       return <input type="text" name="title2" />;
   }
 ```
-This method describes the view at any point in time, the value of the text input "title1" has value attribute defined to Untitled so it should always be Untitled. 
+
+This method describes the view at any point in time, the value of the text input "title1" has value attribute defined to Untitled so it should always be Untitled.
 Which means that the user will not be able to update the value of this component, because it's a *React Controlled Component*. However, the input "title2" has not value attribute
 so it will work as *uncontrolled component*. In the current section we will make use of the second approach, uncontrolled components.
 
@@ -670,7 +671,7 @@ As introduction to controlled components we can state that If you add a value={w
       };
   ```
 
-  2. Set attribute onSubmit on the form element. This attribute must recaive as prop a method that will be defined in the father component and will be executed when the user submit the form
+  2. Set attribute onSubmit on the form element. This attribute must receive as prop a method that will be defined in the father component and will be executed when the user submit the form
 
   ```javascript
 /*************************** 
@@ -1111,7 +1112,7 @@ One of the advantages of using react is the chance of split your UI into indepen
         //   This invokation of the setState method will trigger a the execution of the render method
         this.setState({
           contacts: this.state.contacts.concat([contactSubmitted])
-        })      
+        })
       }
 
       render() {
@@ -1227,3 +1228,46 @@ isValid()
 ```
 
 On commit [36](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/32033149299224d4a6ecd5af525126742506692a) this validation feature has been implemented.
+
+### 17.  Improving forms validation experience: Highlighting wrong fields
+
+1. Adding new function in order to identify the value of each input in any time. That's why this function needs to be called from the *render* method. This function will return an object indicating if each input is valid or not.
+
+  ```javascript
+    getErrorInputs()
+      {
+        const {contactToAddBean} = this.state;
+        let errorObject = {
+            name: false,
+            email: false
+        };
+
+        if (contactToAddBean.name.length<1) {
+           errorObject.name = true;
+        }
+
+        if (contactToAddBean.name.length>0 && !contactToAddBean.email.includes("@")) {
+          errorObject.email = true;
+        }
+
+        return errorObject;
+      }
+  ```
+
+  2. Updating className attribute for the inputs. Since we want to chagne the look and feel of the input when the value is not right we have to include that condition on hte className attribute of the JSX inputs
+
+```html
+   <input type='text' className={errors.name ? 'error ContactItem-name': 'ContactItem-name'} placeholder='Name (required)' value={this.state.contactToAddBean.name} onChange={this.handleContactNameChange.bind(this)}/>
+  
+   <input type='text' className={errors.email ? 'error ContactItem-email' :'ContactItem-email' } placeholder='Email (optional)' value={this.state.contactToAddBean.email} onChange={this.handleContacEmailChange.bind(this)}/>
+```
+
+  3. Adding css class error
+
+```css
+  .error {
+    border: 1px solid red !important;
+  }
+```
+
+See on commit [38](https://github.com/migueldoctor/ReactJS-Raw-sample-with-JSX-without-Flux-or-ES6/commit/99903e9faf14b00812febafafb82782daf1a2a55) how this validation highlight feature has been implemented.
